@@ -25,6 +25,7 @@ packages <-
     "ggeffects",
     "glmmTMB",
     "MuMIn",
+    "kableExtra",
     "ggplot2"
     
   )
@@ -61,14 +62,14 @@ merged_df <- merged_df %>% dplyr::mutate(Habitat = as.factor(Habitat))
 
 merged_df <- merged_df %>%
   dplyr::mutate(
-    Elevation = as.numeric(gsub(" m", "", Elevation)),  # Remove 'm' from elevation and convert to numeric
-    Habitat = as.factor(Habitat),  # Convert habitat to categorical variable
-    log_Buffalo = log1p(Buffalo),  # log(1 + x) transformation to avoid log(0)
+    Elevation = as.numeric(gsub(" m", "", Elevation)),  
+    Habitat = as.factor(Habitat),  
+    log_Buffalo = log1p(Buffalo),  
     log_Cow = log1p(Cow),
     log_Combined = log1p(Combined),
-    log_river_distance = log1p(river_distance),  # Corrected column name
-    log_mtn_distance = log1p(mtn_distance),  # Corrected column name
-    log_dist_to_cover = log1p(dist_to_cover)  # New column for cover distance
+    log_river_distance = log1p(river_distance),  
+    log_mtn_distance = log1p(mtn_distance),  
+    log_dist_to_cover = log1p(dist_to_cover) 
   )
 
 # Select species columns
@@ -154,11 +155,69 @@ for (species in species_list) {
 
 
 
+###________________________________________________________________________________________________________________________________________________
+###                         Table of results 
+###________________________________________________________________________________________________________________________________________________
+
+
+# Create df to stole model sommarueis
+model_results <- lapply(names(models), function(species_name) {
+  model <- models[[species_name]]
+  if (!is.null(model)) {
+    tidy(model, effects = "fixed") %>%
+      mutate(Species = species_name)  
+  } else {
+    NULL
+  }
+})
+
+# combine results into single df
+results_table <- bind_rows(model_results) %>%
+  select(Species, term, estimate, std.error, p.value) %>% 
+  arrange(Species, term)  
+
+# create formatted table using kable extda
+formatted_table <- results_table %>%
+  kbl(
+    caption = "Model Results by Species",
+    col.names = c("Species", "Predictor", "Estimate", "Standard Error", "P-value"),
+    digits = 3,
+    align = c("l", "l", "r", "r", "r")
+  ) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    bootstrap_options = c("striped", "hover", "condensed", "responsive")
+  ) %>%
+  group_rows(
+    "Indian Hare", 1, sum(results_table$Species == "Indian_hare")
+  ) %>%
+  group_rows(
+    "Sambar", sum(results_table$Species == "Indian_hare") + 1, 
+    sum(results_table$Species %in% c("Indian_hare", "Sambar"))
+  ) %>%
+  group_rows(
+    "Jungle Cat", sum(results_table$Species %in% c("Indian_hare", "Sambar")) + 1, 
+    sum(results_table$Species %in% c("Indian_hare", "Sambar", "Jungle_cat"))
+  ) %>%
+  group_rows(
+    "Hog Deer", sum(results_table$Species %in% c("Indian_hare", "Sambar", "Jungle_cat")) + 1, 
+    nrow(results_table)
+  ) %>%
+  row_spec(
+    which(results_table$p.value < 0.05), 
+    bold = TRUE, 
+    background = "#f2f2f2"
+  ) %>%
+  column_spec(3:5, width = "8em")  # Adjust column width for readability
+
+# Print the table
+formatted_table
+
 
 ###________________________________________________________________________________________________________________________________________________
 ###                         Plots & visuals
 ###________________________________________________________________________________________________________________________________________________
-
 
 # Plot hare and sambar count with distance to nearest cover
 transformed_df <- merged_df %>%
@@ -176,7 +235,7 @@ transformed_df <- merged_df %>%
 
 combined_plot <- ggplot(transformed_df, aes(x = log_dist_to_cover, y = Count, colour = Species)) +
   geom_point(alpha = 0.8, size = 3) +
-  geom_smooth(method = "lm", se = TRUE, size = 1.2) +  
+  geom_smooth(method = "lm", se = TRUE, linewidth = 1.2) +  
   scale_y_continuous(trans = "log1p") +  
   scale_colour_manual(values = c("Indian_hare" = "#FF5733", "Sambar" = "#33C3FF")) +  
   labs(
