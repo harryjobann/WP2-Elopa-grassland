@@ -173,7 +173,7 @@ model_results <- lapply(names(models), function(species_name) {
 
 # combine results into single df
 results_table <- bind_rows(model_results) %>%
-  select(Species, term, estimate, std.error, p.value) %>% 
+  dplyr::select(Species, term, estimate, std.error, p.value) %>% 
   arrange(Species, term)  
 
 # create formatted table using kable extda
@@ -233,7 +233,7 @@ transformed_df <- merged_df %>%
   filter(!is.na(Count))  
 
 
-combined_plot <- ggplot(transformed_df, aes(x = log_dist_to_cover, y = Count, colour = Species)) +
+ ggplot(transformed_df, aes(x = log_dist_to_cover, y = Count, colour = Species)) +
   geom_point(alpha = 0.8, size = 3) +
   geom_smooth(method = "lm", se = TRUE, linewidth = 1.2) +  
   scale_y_continuous(trans = "log1p") +  
@@ -253,4 +253,5 @@ combined_plot <- ggplot(transformed_df, aes(x = log_dist_to_cover, y = Count, co
     axis.text = element_text(size = 14)  
   )
 
-print(combined_plot)
+
+
