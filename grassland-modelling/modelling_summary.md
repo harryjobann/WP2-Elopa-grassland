@@ -18,10 +18,10 @@
 
 ### Results Overview:
 
-- Indian hare: Distance to cover had a significant positive effect (p = 0.0103), suggesting hares favour proximity to cover. No strong effects of livestock presence.
-- Hog deer: River distance showed a weak positive trend (p = 0.0503), but no other strong effects were detected.
+- Indian hare: Distance to cover had a significant positive effect (p = 0.0103), suggesting that are more likely to be observed further from cover (i.e. hare prefer open areas). No strong effects of livestock presence.
+- Hog deer: River distance showed a weak positive trend (p = 0.0503), suggesting that Hog_deer are more likely to be observed further from the river. 
 - Jungle cat: No significant predictors; elevation and river distance showed weak trends (p = 0.159, p = 0.344).
-- Sambar: Distance to cover had a significant negative effect (p = 0.0392), suggesting Sambar prefer more open areas.
+- Sambar: Distance to cover had a significant negative effect (p = 0.0392), suggesting that Sambar are less likely to be observed further from cover. I.e. Sambar prefer cover. 
 
 ### Key Takeaways:
 
